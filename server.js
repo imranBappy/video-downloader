@@ -1,10 +1,16 @@
 const express = require('express');
 require('dotenv').config();
+const cors = require('cors')
+
 // const mongoose = require('mongoose');
 // const fs = require('fs');
 const ytdl = require('ytdl-core');
 
+
+
+
 const app = express();
+app.use(cors());
 app.use(express.static('./public'))
 
 app.get('/', (req, res)=>{
