@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
+    <title>Youtube Video Downloader</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: "Raleway", sans-serif;
+        }
+
+        .header {
+            width: 100%;
+            height: 50px;
+            background: #111;
+            text-align: center;
+            line-height: 50px;
+            color: aliceblue;
+        }
+
+        .form {
+            padding: 160px 20px;
+            background: linear-gradient(to right, #8e9eab, #eef2f3);
+        }
+
+        .form .form-element {
+            max-width: 400px;
+            margin: 10px auto;
+        }
+
+        .form .form-element label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form .form-element input {
+            padding: 10px;
+            outline: none;
+            border: 1px solid #888;
+            font-size: 15px;
+            width: 100%;
+        }
+
+        .form .form-element button {
+            width: 100%;
+            height: 40px;
+            background: #111;
+            color: #f5f5f5;
+            border: none;
+            outline: none;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .video-data {
+            max-width: 400px;
+            margin: 60px auto;
+            display: none;
+        }
+
+        .video-data .data .thumbnail img {
+            width: 100%;
+        }
+
+        .video-data .data .info {
+            margin-top: 10px;
+
+        }
+
+        .video-data .data .info h2 {
+            font-size: 16px;
+            margin-bottom: 10px;
+            color: #222
+        }
+
+        .video-data .data .info p {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .video-data .controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .video-data .controls select,
+        .video-data .controls button {
+            width: 48%;
+            height: 40px;
+        }
+
+        .video-data .controls button {
+            border: 1px solid #888;
+            color: #111;
+            background: transparent;
+            cursor: pointer;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="header">
+        <h1>Youtube Video Downloader</h1>
+    </div>
+
+
+    <div class="form">
+        <div class="form-element">
+            <label for="videoURL">Enter youtube video link</label>
+            <input placeholder="Ender youtube video link" id="videoURL" type="text">
+
+        </div>
+        <div class="form-element">
+            <button id="get-video-info-btn">Download</button>
+        </div>
+        <div class="video-data">
+            <div class="data">
+                <div class="thumbnail">
+                    <img>
+                </div>
+                <div class="info">
+                    <h2>unde. Culpa minus inventore veritatis, nulla enim ipsum, magni atqu</h2>
+                    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Perspiciatis optio ut impedit, dolorum
+                        aliquam ipsum ipsam debitis tenetur necessitatibus ducimus sequi nostrum modi assumenda amet
+                        unde. Culpa minus inventore veritatis, nulla enim ipsum, magni atque </p>
+                </div>
+            </div>
+            <div class="controls">
+                <input type="hidden" id="video-url">
+                <select id="download-options"></select>
+                <button id="download-btn">Download</button>
+            </div>
+
+        </div>
+    </div>
+
+    <footer style=" width: 100%; padding: 10px; background: #111; color: aliceblue; text-align: center; ">
+        <p>Develop by <a style="text-decoration: none;" target="blank"
+                href="https://www.facebook.com/imranhossenbappy.official">Imran
+                Hossen</a></p>
+    </footer>
+
+    <script>
+        const host = `http://localhost:3000`
+        let videoTitle = ''
+        document.getElementById('get-video-info-btn').addEventListener('click', () => {
+            const videoURL = document.getElementById('videoURL').value.trim();
+            if (videoURL === '') {
+                alert('Please enter youtube video link')
+                return;
+            }
+            fetch(`${host}/videoinfo?videoURL=${videoURL}`)
+                .then((response) => response.json())
+                .then((data) => {
+
+                    let detailsNodes = {
+                        thumbnail: document.querySelector(".video-data .thumbnail img"),
+                        title: document.querySelector(".video-data .info h2"),
+                        description: document.querySelector(".video-data .info p"),
+                        videoURL: document.querySelector(".video-data .controls #video-url"),
+                        downloadOptions: document.querySelector(".video-data .controls #download-options"),
+                    }
+                    let html = '';
+
+                    for (let i = 0; i < data.formats.length; i++) {
+
+                        const format = data.formats[i];
+                        if (format.container !== 'mp4') {
+                            continue;
+                        }
+                        html += `
+                            <option value='${format.itag}' >
+                            ${format.container} - ${format.qualityLabel}
+                            </option>
+                        `
+                        detailsNodes.thumbnail.src = data.videoDetails.thumbnails[data.videoDetails.thumbnails.length - 1].url;
+                        detailsNodes.title.innerHTML = data.videoDetails.title;
+                        detailsNodes.videoURL.value = videoURL;
+                        detailsNodes.downloadOptions.innerHTML = html
+                        document.querySelector('.video-data').style.display = 'block';
+                        document.querySelector('.video-data').scrollIntoView({
+                            behavior: 'smooth'
+                        })
+                        videoTitle = data.videoDetails.title
+                    }
+
+                })
+                .catch(() => {
+                    alert('Something went wrong')
+                })
+        })
+
+        document.getElementById('download-btn').addEventListener('click', () => {
+            const videoURL = document.getElementById('video-url').value;
+            const itag = document.getElementById('download-options').value;
+            window.open(`${host}/download?videoURL=${videoURL}&itag=${itag}&title=${videoTitle}`)
+        })
+
+    </script>
+
+</body>
+
+</html>
