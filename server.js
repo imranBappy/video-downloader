@@ -2,8 +2,6 @@ const express = require('express');
 require('dotenv').config();
 const cors = require('cors')
 
-// const mongoose = require('mongoose');
-// const fs = require('fs');
 const ytdl = require('ytdl-core');
 
 
@@ -33,11 +31,13 @@ app.get('/download', async (req, res)=>{
     const videoURL = req.query.videoURL;
     const itag = req.query.itag;
     const title =req.query.title;
-    res.header("Content-Disposition", `attachment; \ filename="${`${title}.mp4`}"`)
+    console.log(title);
+    res.header("Content-Disposition", 'attachment; / filename="video.mp4"')
     ytdl(videoURL, {
         filter: format => format.itag == itag
     }).pipe(res)
 })
+
 
 const port = process.env.PORT || 3000
 app.listen(port,()=>{
