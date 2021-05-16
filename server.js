@@ -17,7 +17,7 @@ app.get('/', (req, res)=>{
 })
 let videoTitle = '';
 
-app.get('/videoinfo', async (req, res, next)=>{
+app.get('/videoinfo', async (req, res)=>{
 
     try {
         const videoURL = req.query.videoURL;
@@ -25,20 +25,16 @@ app.get('/videoinfo', async (req, res, next)=>{
         videoTitle = info.videoDetails.title; 
         res.json(info)
     } catch (error) {
-        next()
+        console.log(error);
     }
     
 })
 
-app.get('/download', async (req, res, next)=>{
-    try {
-        res.header("Content-Disposition", `attachment; filename="${videoTitle? videoTitle.trim() : "video"}.mp4"`)
+app.get('/download', async (req, res)=>{
+    res.header("Content-Disposition", `attachment; filename="${videoTitle? videoTitle.trim() : "video"}.mp4"`)
     ytdl(req.query.videoURL, {
         filter: format => format.itag == req.query.itag
     }).pipe(res)
-    } catch (error) {
-        next(error)
-    }
 })
 
 
