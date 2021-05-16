@@ -32,7 +32,7 @@ app.get('/download', async (req, res)=>{
     const itag = req.query.itag;
     const title =req.query.title;
     console.log(title);
-    res.header("Content-Disposition", 'attachment; / filename="video.mp4"')
+    res.header("Content-Disposition", 'attachment; filename="video.mp4"')
     ytdl(videoURL, {
         filter: format => format.itag == itag
     }).pipe(res)
